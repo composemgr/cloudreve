@@ -21,8 +21,8 @@ services:
       PUID: ${SERVICE_USER:-1000}
       PGID: ${SERVICE_GROUP:-1000}
     volumes:
-      - ./rootfs/config/cloudreve:/config
-      - ./rootfs/data/cloudreve:/data
+      - ./volumes/config/cloudreve:/config
+      - ./volumes/data/cloudreve:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5212"]
       interval: 30s
