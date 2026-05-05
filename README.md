@@ -47,8 +47,8 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/config/cloudreve` - Data storage
-- `./rootfs/data/cloudreve` - Data storage
+- `./volumes/config/cloudreve` - Data storage
+- `./volumes/data/cloudreve` - Data storage
 
 ## 🔍 Logging
 
