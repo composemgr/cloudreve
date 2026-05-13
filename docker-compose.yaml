@@ -26,9 +26,7 @@ services:
       CONTAINER_NAME: cloudreve-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     volumes:
-      - ./volumes/config/cloudreve:/cloudreve/config
-      - ./volumes/data/cloudreve:/cloudreve/uploads
-      - ./volumes/data/db/sqlite/cloudreve:/cloudreve/db
+      - ./volumes/data/cloudreve:/cloudreve/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5212"]
       interval: 30s
