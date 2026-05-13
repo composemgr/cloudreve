@@ -1,5 +1,6 @@
 # nginx proxy address - http://172.17.0.1:5212
 
+name: cloudreve
 x-logging: &default-logging
   driver: json-file
   options:
@@ -7,22 +8,23 @@ x-logging: &default-logging
     max-file: "1"
 
 services:
-  cloudreve:
+  app:
     image: cloudreve/cloudreve:latest
+    pull_policy: always
     container_name: cloudreve-app
-    restart: unless-stopped
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
     logging: *default-logging
     networks:
       - cloudreve
     ports:
-      - "5212:5212"
+      - "172.17.0.1:5212:5212"
     environment:
       TZ: ${TZ:-America/New_York}
-      PUID: ${SERVICE_USER:-1000}
-      PGID: ${SERVICE_GROUP:-1000}
     volumes:
-      - ./volumes/config/cloudreve:/config
-      - ./volumes/data/cloudreve:/data
+      - ./volumes/config/cloudreve:/cloudreve/config
+      - ./volumes/data/cloudreve:/cloudreve/uploads
+      - ./volumes/data/db/sqlite/cloudreve:/cloudreve/db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5212"]
       interval: 30s
@@ -31,4 +33,5 @@ services:
 
 networks:
   cloudreve:
+    name: cloudreve
     external: false
