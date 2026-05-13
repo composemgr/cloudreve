@@ -17,10 +17,14 @@ services:
     logging: *default-logging
     networks:
       - cloudreve
+      - proxy
+      - cloudflare
     ports:
       - "172.17.0.1:5212:5212"
     environment:
       TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: cloudreve-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     volumes:
       - ./volumes/config/cloudreve:/cloudreve/config
       - ./volumes/data/cloudreve:/cloudreve/uploads
@@ -30,8 +34,28 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://cloudreve-app:5212'
+      - 'cloudflare.hostname=cloudreve.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.cloudreve-app.entrypoints=http'
+      - 'traefik.http.routers.cloudreve-app-secure.tls=true'
+      - 'traefik.http.routers.cloudreve-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.cloudreve-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.cloudreve-app.middlewares=cloudreve-app-https-redirect'
+      - 'traefik.http.routers.cloudreve-app-secure.entrypoints=https'
+      - 'traefik.http.routers.cloudreve-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.cloudreve-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.cloudreve-app-secure.service=cloudreve-app'
+      - 'traefik.http.services.cloudreve-app.loadbalancer.server.port=5212'
 
 networks:
   cloudreve:
     name: cloudreve
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
